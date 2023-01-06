@@ -86,6 +86,10 @@ body {
   object-fit: contain;
 }
 
+.radios {
+  color: #dcdcdc;
+  font-size: 20px;
+}
 .message {
   flex: 1;
 
