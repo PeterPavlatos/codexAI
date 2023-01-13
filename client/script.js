@@ -44,7 +44,7 @@ function generateUniqueId() {
     return `id-${timestamp}-${hexadecimalString}`;
 }
 
-function chatStripe(isAi, value, uniqueId) {
+function chatStripe(isAi, type, value, uniqueId) {
     return (
         `
         <div class="wrapper ${isAi && 'ai'}">
@@ -55,7 +55,7 @@ function chatStripe(isAi, value, uniqueId) {
                       alt="${isAi ? 'bot' : 'user'}" 
                     />
                 </div>
-                <div class="message" id=${uniqueId}>${value}</div>
+                <div class="message" id=${uniqueId}>${type} : ${value}</div>
             </div>
         </div>
     `
@@ -66,16 +66,18 @@ const handleSubmit = async (e) => {
     e.preventDefault()
 
     const data = new FormData(form)
-
+    const prompt = data.get('prompt') 
+    const type = data.get('type') 
+    
     // user's chatstripe
-    chatContainer.innerHTML += chatStripe(false, data.get('prompt'))
+    chatContainer.innerHTML += chatStripe(false, type, prompt)
 
     // to clear the textarea input 
     form.reset()
 
     // bot's chatstripe
     const uniqueId = generateUniqueId()
-    chatContainer.innerHTML += chatStripe(true, " ", uniqueId)
+    chatContainer.innerHTML += chatStripe(true, " ", " ", uniqueId)
 
     // to focus scroll to the bottom 
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -85,25 +87,30 @@ const handleSubmit = async (e) => {
 
     // messageDiv.innerHTML = "..."
     loader(messageDiv)
-
-    const response = await fetch('https://codexai-os1z.onrender.com', {
+       
+    const response = await fetch('https://codexai-os1z.onrender.com/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            prompt: data.get('prompt')
+            prompt: prompt,
+            type: type
         })
     })
 
     clearInterval(loadInterval)
-    messageDiv.innerHTML = " "
+    messageDiv.innerHTML = `${type}:  `
 
     if (response.ok) {
         const data = await response.json();
         const parsedData = data.bot.trim() // trims any trailing spaces/'\n' 
-
-        typeText(messageDiv, parsedData)
+        if(type == "text"){
+            typeText(messageDiv, parsedData)
+        }else {
+            messageDiv.innerHTML = `${type} Peter:  <img src="${parsedData}" width="250" /> ` 
+        }
+        
     } else {
         const err = await response.text()
 
