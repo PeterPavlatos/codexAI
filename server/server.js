@@ -7,6 +7,7 @@ dotenv.config();
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
+  
 });
 
 const openai = new OpenAIApi(configuration);
@@ -25,6 +26,7 @@ app.post("/", async (req, res) => {
   try {
     const prompt = req.body.prompt;
     const type = req.body.type;
+ 
     let response;
     if (type == "image") {
       response = await openai.createImage({
@@ -36,6 +38,7 @@ app.post("/", async (req, res) => {
     }
 
     if (type == "text") {
+     
       response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: `${prompt}`,
